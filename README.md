@@ -15,7 +15,7 @@ Integration instructions
     * Follow the instructions there to add the requisite files, frameworks, and linker flags to your Xcode project.
 
 * Add this plug-in:
-    * Add `CardIOPGPlugin.[h|m]` to your project (Plugins group).
+    * If you are using Phonegap 3.0+, use your terminal to add this plugin. (Command: phonegap local plugin add https://github.com/m140v/card.io-iOS-SDK-PhoneGap.git). If you are using Phonegap 2.9 or earlier: Add `CardIOPGPlugin.[h|m]` to your project (Plugins group).
     * Copy `CardIOPGPlugin.js` to your project's `www` folder. (If you don't have a `www` folder yet, run in the Simulator and follow the instructions in the build warnings.)
     * Add e.g. `<script type="text/javascript" src="CardIOPGPlugin.js"></script>` to your html.
     * See `CardIOPGPlugin.js` for detailed usage information.
