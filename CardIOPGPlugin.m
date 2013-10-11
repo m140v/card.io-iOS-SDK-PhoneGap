@@ -3,13 +3,16 @@
 //
 //  Copyright 2013 PayPal Inc.
 //  MIT licensed
-//
+// edited by @itsdeshazer to work for Phonegap 3.0+
 
 #import "CardIOPGPlugin.h"
+#import <Cordova/CDV.h>
 
 #pragma mark -
 
 @interface CardIOPGPlugin ()
+
+
 
   @property (nonatomic, strong, readwrite) CardIOPaymentViewController *paymentViewController;
   @property (nonatomic, copy, readwrite) NSString *scanCallbackId;
@@ -24,10 +27,33 @@
 @implementation CardIOPGPlugin
 
 
-- (void)scan:(NSMutableArray *)args withDict:(NSMutableDictionary *)options {
-  self.scanCallbackId = [args objectAtIndex:0];
-  NSString *appToken = [args objectAtIndex:1];
+
+
+    
+
+- (void)scan:(CDVInvokedUrlCommand*)command
+    {
+        
+        
+        
+        
+        [self.commandDelegate runInBackground:^{
+            NSString* payload = nil;
+            // Some blocking logic...
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:payload];
+            // The sendPluginResult method is thread-safe.
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }];
+        
+        
+        
+       
+        
+        
   
+   self.scanCallbackId = command.callbackId;
+     NSString *appToken = [command.arguments objectAtIndex:0];
+         NSDictionary *options = [command.arguments objectAtIndex:1];
   self.paymentViewController = [[CardIOPaymentViewController alloc] initWithPaymentDelegate:self];
   self.paymentViewController.appToken = appToken;
 
@@ -38,7 +64,7 @@
 
   NSNumber *collectZip = [options objectForKey:@"collect_zip"];
   if(collectZip) {
-    self.paymentViewController.collectZip = [collectZip boolValue];
+    self.paymentViewController.collectPostalCode = [collectZip boolValue];
   }
 
   NSNumber *collectExpiry = [options objectForKey:@"collect_expiry"];
@@ -53,7 +79,7 @@
 
   NSNumber *showsFirstUseAlert = [options objectForKey:@"shows_first_use_alert"];
   if(showsFirstUseAlert) {
-    self.paymentViewController.showsFirstUseAlert = [showsFirstUseAlert boolValue];
+   // self.paymentViewController.showsFirstUseAlert = [showsFirstUseAlert boolValue];
   }
   
   // if it is nil, its ok.
@@ -63,10 +89,32 @@
   }
 
   [self.viewController presentModalViewController:self.paymentViewController animated:YES];
+        
+        
+        
 }
+    
+    
 
-- (void)canScan:(NSMutableArray *)args withDict:(NSMutableDictionary *)options {
-  NSString *callbackId = [args objectAtIndex:0];
+
+- (void)canScan:(CDVInvokedUrlCommand*)command
+    {
+        
+        [self.commandDelegate runInBackground:^{
+            NSString* payload = nil;
+            // Some blocking logic...
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:payload];
+            // The sendPluginResult method is thread-safe.
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }];
+        
+        
+         //NSArray* args = [command.arguments objectAtIndex:0];
+        NSString *callbackId = command.callbackId;
+    
+    
+    
+    
   BOOL canScan = [CardIOPaymentViewController canReadCardWithCamera];
   [self sendSuccessTo:callbackId withObject:[NSNumber numberWithBool:canScan]];
 }
@@ -108,8 +156,8 @@
   if(info.cvv.length > 0) {
     [response setObject:info.cvv forKey:@"cvv"];
   }
-  if(info.zip.length > 0) {
-    [response setObject:info.zip forKey:@"zip"];
+  if(info.postalCode.length > 0) {
+    [response setObject:info.postalCode forKey:@"zip"];
   }
 
   [self sendSuccessTo:self.scanCallbackId withObject:response];
